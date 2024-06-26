@@ -9,26 +9,22 @@
 #include <arpa/inet.h>
 #include <sys/select.h>
 #include <time.h>
+#include "./mylib/hachi.h"
+#include "./mylib/koto.h"
+#include "./mylib/noname.h"
+#include "./mylib/takema.h"
 
 #define PORT                (in_port_t)50000
 #define BUF_LEN             512
 
-char * chop_newline(char *str,int len){
-    int n = strlen(str);
-    if(n<len && str[n-1]=='\n'){
-        str[n-1] = '\0';
-    }
-    return str;
-}
-
-void main()
+int main()
 {
     struct sockaddr_in server;
     int soc;
     char ip_str[BUF_LEN];
     struct in_addr ip_addr;
     char buf[BUF_LEN];
-    char username[BUF_LEN],partnername[BUF_LEN];
+    char username[BUF_LEN];
 
     /*
     input server's ip 

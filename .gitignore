@@ -1,2 +1,10 @@
+mylib/mylib.a
+mylib/hachi.o
+mylib/koto.o
+mylib/noname.o
+mylib/takema.o
+obj
 client.exe
 server.exe
+client
+server

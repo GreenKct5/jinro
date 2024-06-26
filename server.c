@@ -8,26 +8,28 @@
 #include <netinet/in.h>
 #include <netdb.h>
 #include <time.h>
+#include "./mylib/hachi.h"
+#include "./mylib/koto.h"
+#include "./mylib/noname.h"
+#include "./mylib/takema.h"
 
 #define PORT (in_port_t)    50000
 #define BUF_LEN             512
 
-char * chop_newline(char *str,int len){
-    int n = strlen(str);
-    if(n<len && str[n-1]=='\n'){
-        str[n-1] = '\0';
-    }
-    return str;
-}
-
-void main()
+int main()
 {
     struct sockaddr_in me;
     int playerNum;
     int soc_waiting;
     char buf[BUF_LEN];
-    char username[BUF_LEN],partnername[BUF_LEN];
+    char username[BUF_LEN];
     char message[] = "Please input your name        : "; 
+
+    printf("%s\n", hello_hachi());
+    printf("%s\n", hello_koto());
+    printf("%s\n", hello_noname());
+    printf("%s\n", hello_takema());
+
     write(1,message,strlen(message));
     read(0,username,BUF_LEN);
     chop_newline(username,BUF_LEN);
