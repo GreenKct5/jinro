@@ -3,5 +3,6 @@
 
 char *hello_koto();
 char *chop_newline(char *str, int len);
+void voting()
 
 #endif /* KOTO_H */
