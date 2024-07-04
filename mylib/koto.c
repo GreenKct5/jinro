@@ -46,6 +46,7 @@ void voting(const char *username) {
         i++;
     }
     snprintf(option, sizeof(option), "%c. この中に人狼はいない\n", 'a' + optionIndex);
+
     write(1, option, strlen(option));
     write(1, "入力: ", strlen("入力: "));
     read(0, buf, BUF_LEN);
