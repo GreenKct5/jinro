@@ -1,18 +1,13 @@
 #include <stdio.h>
 #include <time.h>
 #include <unistd.h>
+#include <pthread.h>
 
-char * hello_noname(){
-    return "Hello. I'm noname!";
-}
-
-void chatroom_kari(){
-    printf("[koto]占いCOお願いします。\n"); // 仮のチャット
-    printf("[noname]了解しました。\n"); // 仮のチャット
-    printf("[takema]占い対抗出ます。\n"); // 仮のチャット
-}
-
-void moveCursorUp(int lines, int minutes, int seconds) {
+void* moveCursorUp(void* arg) {
+    int* params = (int*)arg;
+    int lines = params[0];
+    int minutes = params[1];
+    int seconds = params[2];
     time_t start, current;
     int total_seconds = minutes * 60 + seconds; // 指定された時間を秒に変換
     time(&start); // タイマーの開始時間を取得
@@ -42,10 +37,30 @@ void moveCursorUp(int lines, int minutes, int seconds) {
         sleep(1); // 1秒待機
         printf("\n"); // 次の行に移動（チャットルームの表示など他の出力のため）
     }
+    return NULL;
 }
 
-int main() {  // 使用例
-    chatroom_kari(); // 仮のチャットルーム
-    moveCursorUp(1, 1, 30); // 移動する行数、分、秒
+void chatroom_kari(){
+    sleep(2); // 1秒待機
+    printf("[koto]占いCOお願いします。\n"); // 仮のチャット
+    sleep(3); // 1秒待機
+    printf("[noname]自分占いです。\n"); // 仮のチャット
+    sleep(5); // 1秒待機
+    printf("[takema]占い対抗出ます。\n"); // 仮のチャット
+}
+
+int main() {
+    pthread_t timer_thread;
+    int params[3] = {1, 1, 30}; // 移動する行数、分、秒
+
+    // タイマーを別スレッドで起動
+    pthread_create(&timer_thread, NULL, moveCursorUp, (void*)params);
+
+    // 他のプログラムの処理
+    chatroom_kari();
+
+    // タイマーのスレッドが終了するのを待つ
+    pthread_join(timer_thread, NULL);
+
     return 0;
 }
