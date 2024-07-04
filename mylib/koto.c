@@ -1,5 +1,17 @@
 #include <stdio.h>
 #include <string.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <fcntl.h>
+#include <unistd.h>
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <netdb.h>
+#include <arpa/inet.h>
+#include <sys/select.h>
+#include <time.h>
+
+#define BUF_LEN 512
 
 char * hello_koto() {
     return "Hello. I'm koto!";
@@ -11,4 +23,29 @@ char * chop_newline(char *str,int len){
         str[n-1] = '\0';
     }
     return str;
+}
+
+// 占い師の占い動作
+void divination(const char *username) {
+    char buf[BUF_LEN];
+    char *userList[] = {"koto", "takema", "noname", "hachi"};
+
+    write(1, "誰を占いますか\n", strlen("誰を占いますか\\n"));
+    int i = 0;
+    int length = sizeof(userList) / sizeof(userList[0]);
+    char option[64];
+    int optionIndex = 0;
+
+    while (i < length) {
+        if (strcmp(userList[i], username) != 0) {
+            snprintf(option, sizeof(option), "%c. %s\n", 'a' + optionIndex, userList[i]); // optionにフォーマットした文字列を格納する
+            write(1, option, strlen(option));
+            optionIndex++;
+        }
+        i++;
+    }
+    snprintf(option, sizeof(option), "%c. 使われてない役職2つをみる\n", 'a' + optionIndex);
+    write(1, option, strlen(option));
+    write(1, "入力: ", strlen("入力: "));
+    read(0, buf, BUF_LEN);
 }
