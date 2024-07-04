@@ -2,8 +2,6 @@
 #include <time.h>
 #include <unistd.h>
 
-int LimitTime = 10; // タイマーの制限時間   
-
 char * hello_noname(){
     return "Hello. I'm noname!";
 }
@@ -11,11 +9,8 @@ char * hello_noname(){
 void chatroom_kari(){
     printf("[koto]占いCOお願いします。\n"); // 仮のチャット
     printf("[noname]了解しました。\n"); // 仮のチャット
+    printf("[takema]占い対抗出ます。\n"); // 仮のチャット
 }
-
-#include <stdio.h>
-#include <time.h>
-#include <unistd.h>
 
 void moveCursorUp(int lines, int minutes, int seconds) {
     time_t start, current;
@@ -31,6 +26,7 @@ void moveCursorUp(int lines, int minutes, int seconds) {
 
         if (remaining < 0) {
             printf("時間切れ\n");
+            printf("終了\n"); // 次の行に終了と表示
             break;
         }
 
@@ -48,7 +44,7 @@ void moveCursorUp(int lines, int minutes, int seconds) {
     }
 }
 
-int main() {
+int main() {  // 使用例
     chatroom_kari(); // 仮のチャットルーム
     moveCursorUp(1, 1, 30); // 移動する行数、分、秒
     return 0;
