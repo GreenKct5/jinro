@@ -1,18 +1,8 @@
 #include <stdio.h>
+#include <stdlib.h>
+#include "takema.h"
 #define MAX_NAME_LENGTH 15
 
-typedef enum {
-    VILLAGER,
-    WEREWOLF,
-    SEER, 
-    THIEF,
-} Role;
-
-typedef struct {
-    char name[MAX_NAME_LENGTH];
-    Role role;
-    int sock;
-} Player;
 
 char * hello_takema(){
     return "Hello. I'm takema!";
@@ -59,4 +49,5 @@ int randomRole(Player *players,Role* trash,int playerNum){
         if (i < playerNum) players[i].role = roleCards[i];
     }
     for (int i = 0; i < 2;i++) trash[i] = roleCards[playerNum + i];
+    return 0;
 }
