@@ -58,6 +58,12 @@ int main()
 
     Role trash[2]; // 使わない役職を格納する配列 
     randomRole(players,trash,playerNum); // 役職をランダムに割り振る
+
+    // 割り振った役職をクライアントに表示
+    for (int i = 0; i < playerNum; i++) {
+        snprintf(buf, BUF_LEN, "\nあなたの役職は %s です\n", strRole(players[i].role));
+        write(players[i].sock, buf, strlen(buf));
+    }
     close(soc_waiting);
     
     // await-async chat 
