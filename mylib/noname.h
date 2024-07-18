@@ -3,4 +3,6 @@
 
 char * hello_noname();
 
+void* moveCursorUp(void* arg);
+
 #endif /* NONEME_H */

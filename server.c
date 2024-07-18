@@ -8,6 +8,7 @@
 #include <netinet/in.h>
 #include <netdb.h>
 #include <time.h>
+#include <pthread.h>
 #include "./mylib/hachi.h"
 #include "./mylib/koto.h"
 #include "./mylib/noname.h"
@@ -62,6 +63,11 @@ int main()
     FD_ZERO(&readset);
     for(int i = 0; i < playerNum; i++) FD_SET(soc_comm[i],&readset);
     readset_origin = readset;
+
+    pthread_t timer_thread;
+    int params[2] = {1, 30}; // 分、秒
+    pthread_create(&timer_thread, NULL, moveCursorUp, (void*)params); // タイマーを別スレッドで起動
+
     do{
         readset = readset_origin;
         select(soc_comm[playerNum-1]+1,&readset,NULL,NULL,NULL);

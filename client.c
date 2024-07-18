@@ -9,6 +9,7 @@
 #include <arpa/inet.h>
 #include <sys/select.h>
 #include <time.h>
+#include <pthread.h>
 #include "./mylib/hachi.h"
 #include "./mylib/koto.h"
 #include "./mylib/noname.h"
@@ -51,7 +52,7 @@ int main()
         perror("connect");
         exit(1);
     }
-    write(1,"Go Ahead!\n",strlen("Go Ahead!"));
+    write(1,"Go Ahead!\n",strlen("Go Ahead!\n"));
     // await-async chat 
     fd_set readset,readset_origin;
     int fd = soc;
