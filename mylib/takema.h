@@ -17,5 +17,6 @@ typedef struct {
 char * hello_takema();
 char * strRole(Role role);
 int randomRole(Player *players,Role* trash,int playerNum);
+int stealRole(Player* thief,Player* victim);
 #endif /* TAKEMA_H */
 

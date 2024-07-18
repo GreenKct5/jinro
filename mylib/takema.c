@@ -51,3 +51,15 @@ int randomRole(Player *players,Role* trash,int playerNum){
     for (int i = 0; i < 2;i++) trash[i] = roleCards[playerNum + i];
     return 0;
 }
+/// @brief 怪盗と関数
+/// @param thief 怪盗のプレイヤーのアドレス
+/// @param victim 役割を盗まれるプレイヤーのアドレス
+int stealRole(Player* thief,Player* victim){
+    if (thief->role != THIEF||victim->role == THIEF) return -1; // 怪盗でない、または盗まれる役職が怪盗の場合はエラー
+
+    // 役職を盗み、被害者の役職を村人にする
+    thief->role = victim->role;
+    victim->role = VILLAGER;
+
+    return 0;
+}
