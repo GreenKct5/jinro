@@ -19,22 +19,18 @@
 int main()
 {
     struct sockaddr_in me;
-    int playerNum;
+    int playerNum = 2;
     int soc_waiting;
     char buf[BUF_LEN];
-    char username[BUF_LEN];
-    char message[] = "Please input your name        : "; 
 
     printf("%s\n", hello_hachi());
     printf("%s\n", hello_koto());
     printf("%s\n", hello_noname());
     printf("%s\n", hello_takema());
 
-    write(1,message,strlen(message));
-    read(0,username,BUF_LEN);
-    chop_newline(username,BUF_LEN);
-    write(1,"Please input player num    :",strlen("Please input player num    :"));
-    scanf("%d",&playerNum);
+    // write(1,"Please input player num    :",strlen("Please input player num    :"));
+    // scanf("%d",&playerNum);
+    write(1,"このゲームは4人プレイです",strlen("このゲームは4人プレイです"));
     
     memset((char *)&me,0,sizeof(me));           // initialize "me"
     me.sin_family = AF_INET;                    // configure protocol (AF_INET: IPv4)
@@ -70,6 +66,7 @@ int main()
     fd_set readset,readset_origin;
     FD_ZERO(&readset);
     for(int i = 0; i < playerNum; i++) FD_SET(players[i].sock,&readset);
+    voting(playerNum, players);
     readset_origin = readset;
     do{
         readset = readset_origin;
