@@ -31,7 +31,7 @@ void* timer(void* arg) {
         int remaining_seconds = remaining % 60; // 残り秒数を計算
 
         if (remaining < 0) {
-            snprintf(buffer, sizeof(buffer), "\n~~~~~~~~~~~~~~~~~~~~\n時間切れ\n話し合いを終了して下さい。\n~~~~~~~~~~~~~~~~~~~~\n");
+            snprintf(buffer, sizeof(buffer), "\n~~~~~~~~~~~~~~~~~~~~~~~~~~\n時間切れ\n話し合いを終了して下さい。\n~~~~~~~~~~~~~~~~~~~~~~~~~~\n");
             for (int i = 0; i < client_count; i++) {
                 send(socks[i], buffer, strlen(buffer), 0); // クライアントに表示
             }
@@ -61,18 +61,3 @@ void chatroom_kari(){
     sleep(5); // 1秒待機
     printf("[takema]占い対抗出ます。\n"); // 仮のチャット
 }
-
-// int main() {
-//     pthread_t timer_thread;
-//     int params[3] = {1, 1, 30}; // 移動する行数、分、秒
-
-//     pthread_create(&timer_thread, NULL, timer, (void*)params); // タイマーを別スレッドで起動
-
-//     // 他のプログラムの処理
-//     chatroom_kari();
-
-//     // タイマーのスレッドが終了するのを待つ
-//     pthread_join(timer_thread, NULL);
-
-//     return 0;
-// }
