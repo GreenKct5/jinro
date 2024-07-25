@@ -36,6 +36,14 @@ int main()
     chop_newline(username,BUF_LEN);
     write(1,"Please input player num    :",strlen("Please input player num    :"));
     scanf("%d",&playerNum);
+
+    // タイマーの分と秒を設定（デフォルト値を使用）
+    int minutes = 2;
+    int seconds = 30;
+    // write(1,"Please input timer minutes :",strlen("Please input timer minutes :"));
+    // scanf("%d", &minutes);
+    // write(1,"Please input timer seconds :",strlen("Please input timer seconds :"));
+    // scanf("%d", &seconds);
     
     memset((char *)&me,0,sizeof(me));           // initialize "me"
     me.sin_family = AF_INET;                    // configure protocol (AF_INET: IPv4)
@@ -58,15 +66,22 @@ int main()
     
     close(soc_waiting);
 
+    // 全員の参加を確認した後にタイマーを開始
+    int client_socks[playerNum + 3];
+    client_socks[0] = playerNum;
+    client_socks[1] = minutes;
+    client_socks[2] = seconds;
+    for (int i = 0; i < playerNum; i++) {
+        client_socks[i + 3] = soc_comm[i];
+    }
+    pthread_t timer_thread;
+    pthread_create(&timer_thread, NULL, timer, (void*)client_socks); // タイマーを別スレッドで起動
+
     // await-async chat 
     fd_set readset,readset_origin;
     FD_ZERO(&readset);
     for(int i = 0; i < playerNum; i++) FD_SET(soc_comm[i],&readset);
     readset_origin = readset;
-
-    pthread_t timer_thread;
-    int params[2] = {1, 30}; // 分、秒
-    pthread_create(&timer_thread, NULL, moveCursorUp, (void*)params); // タイマーを別スレッドで起動
 
     do{
         readset = readset_origin;
@@ -81,4 +96,5 @@ int main()
     }while(strncmp(buf,"quit",4) != 0);
     
     for(int i = 0;i < playerNum;i++) close(soc_comm[i]);
+    pthread_join(timer_thread, NULL);
 }
