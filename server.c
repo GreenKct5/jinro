@@ -65,6 +65,10 @@ int main()
         write(players[i].sock, buf, strlen(buf));
     }
     close(soc_waiting);
+
+    for (int i = 0;i < playerNum; i++) {
+        if (players[i].role == THIEF)  selectVictim(&players[i],players,playerNum); // 怪盗の場合は盗む相手を選択し、盗む処理を行う
+    }    
     
     // await-async chat 
     fd_set readset,readset_origin;
