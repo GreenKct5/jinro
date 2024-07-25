@@ -26,29 +26,62 @@ char * chop_newline(char *str,int len){
     return str;
 }
 
-// 占い師の占い動作
-void divination(const char *username) {
+void divination(Player* seer, Player* players, int playerNum) {
     char buf[BUF_LEN];
-    char *userList[] = {"koto", "takema", "noname", "hachi"};
-
-    write(1, "誰を占いますか\n", strlen("誰を占いますか\\n"));
-    int i = 0;
-    int length = sizeof(userList) / sizeof(userList[0]);
     char option[64];
     int optionIndex = 0;
+    int choice;
 
-    while (i < length) {
-        if (strcmp(userList[i], username) != 0) {
-            snprintf(option, sizeof(option), "%c. %s\n", 'a' + optionIndex, userList[i]); // optionにフォーマットした文字列を格納する
-            write(1, option, strlen(option));
+    // 占い師に占う選択肢を表示
+    write(seer->sock, "誰を占いますか\n", strlen("誰を占いますか\n"));
+
+    for (int i = 0; i < playerNum; i++) {
+        if (strcmp(players[i].name, seer->name) != 0) {
+            snprintf(option, sizeof(option), "%c. %s\n", 'a' + optionIndex, players[i].name);
+            write(seer->sock, option, strlen(option));
             optionIndex++;
         }
-        i++;
     }
+
     snprintf(option, sizeof(option), "%c. 使われてない役職2つをみる\n", 'a' + optionIndex);
-    write(1, option, strlen(option));
-    write(1, "入力: ", strlen("入力: "));
-    read(0, buf, BUF_LEN);
+    write(seer->sock, option, strlen(option));
+    write(seer->sock, "入力: ", strlen("入力: "));
+
+    // 占い師からの入力を読み取る
+    read(seer->sock, buf, BUF_LEN);
+    chop_newline(buf, BUF_LEN);
+
+    // 入力の処理
+    choice = buf[0] - 'a';
+    if (choice >= 0 && choice < optionIndex) {
+        // 占う相手の役職を表示
+        write(seer->sock, "占った結果:\n", strlen("占った結果:\n"));
+        snprintf(buf, BUF_LEN, "%sさんの役職は%sです。\n", players[choice].name, strRole(players[choice].role));
+        write(seer->sock, buf, strlen(buf));
+    } else if (choice == optionIndex) {
+        // 使われてない役職2つを表示
+        write(seer->sock, "使われていない役職2つは:\n", strlen("使われていない役職2つは:\n"));
+
+        // 全ての役職とその数をカウント
+        Role allRoles[8] = {WEREWOLF, WEREWOLF, SEER, THIEF, VILLAGER, VILLAGER, VILLAGER, VILLAGER};
+        int roleCounts[4] = {0}; // 役職のカウント
+        
+        // プレイヤーの役職をカウント
+        for (int i = 0; i < playerNum; i++) {
+            roleCounts[players[i].role]++;
+        }
+
+        // 使われていない役職を表示
+        for (int i = 0; i < 8; i++) {
+            if (roleCounts[allRoles[i]] == 0) {
+                snprintf(buf, BUF_LEN, "%s\n", strRole(allRoles[i]));
+                write(seer->sock, buf, strlen(buf));
+            }
+        }
+    } else {
+        // 無効な入力の場合の処理
+        write(seer->sock, "無効な選択です\n", strlen("無効な選択です\n"));
+    }
 }
 
 // 投票

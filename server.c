@@ -67,9 +67,10 @@ int main() {
     for (int i = 0; i < playerNum; i++) {
         snprintf(buf, BUF_LEN, "\nあなたの役職は %s です\n", strRole(players[i].role));
         write(players[i].sock, buf, strlen(buf));
+        // 占いの方が怪盗より先に選択する必要があるためここに記述
+        if (players[i].role == SEER) divination(&players[i],players,playerNum); // 占い師の場合
     }
-    for (int i = 0;i < playerNum; i++) {
-        // if (players[i].role == SEER) 
+    for (int i = 0; i < playerNum; i++) {
         if (players[i].role == THIEF)  selectVictim(&players[i],players,playerNum); // 怪盗の場合は盗む相手を選択し、盗む処理を行う
     } 
      
