@@ -102,11 +102,11 @@ int VoteDisclosure(int *votes, int playerNum){
 
 // 人狼の人数を数える
 int getWolfNum(Player * players, int playerNum){
-    Player wolfList[2] = {0}; // 人狼プレイヤーの配列
+    // Player wolfList[2] = {0}; // 人狼プレイヤーの配列
     int wolfNum = 0;
     for(int i=0; i<playerNum; i++){
             if(players[i].role == WEREWOLF){
-                wolfList[wolfNum] = players[i];
+                // wolfList[wolfNum] = players[i];
                 wolfNum++;
             }
         }

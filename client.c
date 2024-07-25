@@ -18,7 +18,7 @@
 #define PORT                (in_port_t)50000
 #define BUF_LEN             512
 
-int main()
+void main()
 {
     struct sockaddr_in server;
     int soc;

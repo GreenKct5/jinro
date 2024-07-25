@@ -17,10 +17,10 @@
 #define PORT (in_port_t)    50000
 #define BUF_LEN             512
 
-int main()
+void main()
 {
     struct sockaddr_in me;
-    int playerNum = 4;
+    int playerNum = 2;
     int soc_waiting;
     char buf[BUF_LEN];
 
@@ -79,6 +79,10 @@ int main()
     for (int i = 0; i < playerNum; i++) {
         snprintf(buf, BUF_LEN, "\nあなたの役職は %s です\n", strRole(players[i].role));
         write(players[i].sock, buf, strlen(buf));
+        for(int j = 0; j < playerNum; j++){
+            write(players[i].sock, players[j],name, strlen(players[j],name));
+            write(players[i].sock, "\n" strlen("\n"));
+        }
     }
     close(soc_waiting);
     
