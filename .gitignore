@@ -3,8 +3,10 @@ mylib/hachi.o
 mylib/koto.o
 mylib/noname.o
 mylib/takema.o
+mylib/output
 obj
 client.exe
 server.exe
 client
 server
+.vscode
