@@ -3,4 +3,6 @@
 
 char * hello_noname();
 
+void* timer(void* arg);
+
 #endif /* NONEME_H */
