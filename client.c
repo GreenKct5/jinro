@@ -15,71 +15,61 @@
 #include "./mylib/noname.h"
 #include "./mylib/takema.h"
 
-#define PORT                (in_port_t)50000
-#define BUF_LEN             512
+#define PORT (in_port_t) 50000
+#define BUF_LEN 512
 
-int main()
-{
+int main() {
     struct sockaddr_in server;
     int soc;
-    char ip_str[BUF_LEN] = "127.0.0.1"; 
+    char ip_str[BUF_LEN] = "127.0.0.1";
     struct in_addr ip_addr;
     char buf[BUF_LEN];
     char username[BUF_LEN];
 
-    /*
-    input server's ip 
-    */
-    //TODO: 作り終わったらコメントアウトを外す
-    // write(1,"Please input server's address : ",strlen("Please input server's address : "));
-    // read(0,ip_str,BUF_LEN);
+    write(1, "名前を入力してください        : ", strlen("名前を入力してください        : "));
+    read(0, username, BUF_LEN);
+    chop_newline(username, BUF_LEN);
 
-    write(1,"Please input your name        : ",strlen("Please input your name        : "));
-    read(0,username,BUF_LEN);
-    chop_newline(username,BUF_LEN);
-
-    inet_aton(ip_str,&ip_addr);                 // address(text) to network address(binary)
-    memset((char *)&server,0,sizeof(server));
+    inet_aton(ip_str, &ip_addr);
+    memset((char *)&server, 0, sizeof(server));
     server.sin_family = AF_INET;
     server.sin_port = htons(PORT);
-    memcpy((char *)&server.sin_addr,&ip_addr,sizeof(ip_addr));
+    memcpy((char *)&server.sin_addr, &ip_addr, sizeof(ip_addr));
 
-    if((soc = socket(AF_INET,SOCK_STREAM,0)) < 0){
+    if ((soc = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
         perror("socket");
         exit(1);
     }
-    
-    if(connect(soc,(struct sockaddr *)&server,sizeof(server)) == -1){
+
+    if (connect(soc, (struct sockaddr *)&server, sizeof(server)) == -1) {
         perror("connect");
         exit(1);
     }
-    // 名前を送信
-    write(soc, username, strlen(username) + 1);
-    write(1,"Go Ahead!\n",strlen("Go Ahead!"));
-    
-    // await-async chat 
-    fd_set readset,readset_origin;
-    int fd = soc;
-    
-    FD_ZERO(&readset);
 
-    FD_SET(0,&readset);
-    FD_SET(fd,&readset);
+    write(soc, username, strlen(username) + 1);
+    write(1, "Go Ahead!\n", strlen("Go Ahead!\n"));
+
+    fd_set readset, readset_origin;
+    int fd = soc;
+
+    FD_ZERO(&readset);
+    FD_SET(0, &readset);
+    FD_SET(fd, &readset);
     readset_origin = readset;
 
-    do{
-    readset = readset_origin;
-    select(fd+1,&readset,NULL,NULL,NULL);
-        if(FD_ISSET(0,&readset)){
-            int n = read(0,buf,BUF_LEN);
-            write(fd,buf,n);
+    do {
+        readset = readset_origin;
+        select(fd + 1, &readset, NULL, NULL, NULL);
+        if (FD_ISSET(0, &readset)) {
+            int n = read(0, buf, BUF_LEN);
+            write(fd, buf, n);
         }
-        if(FD_ISSET(fd,&readset)){
+        if (FD_ISSET(fd, &readset)) {
             int n;
-            n = read(fd,buf,BUF_LEN);
-            write(1,buf,n);
+            n = read(fd, buf, BUF_LEN);
+            write(1, buf, n);
         }
-    }while(strncmp(buf,"quit",4) != 0);
-    
+    } while (strncmp(buf, "quit", 4) != 0);
+
     close(soc);
 }
