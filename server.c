@@ -52,27 +52,37 @@ int main()
     }
 
     listen(soc_waiting,playerNum);
-    int soc_comm[playerNum];
-    for ( int i = 0; i < playerNum; i++) soc_comm[i] = accept(soc_waiting,NULL,NULL);
-    
-    close(soc_waiting);
+    // Player型の配列を宣言
+    Player players[playerNum];
+    for ( int i = 0; i < playerNum; i++) players[i].sock = accept(soc_waiting,NULL,NULL);
 
+    Role trash[2]; // 使わない役職を格納する配列 
+    randomRole(players,trash,playerNum); // 役職をランダムに割り振る
+
+    // 割り振った役職をクライアントに表示
+    for (int i = 0; i < playerNum; i++) {
+        snprintf(buf, BUF_LEN, "\nあなたの役職は %s です\n", strRole(players[i].role));
+        write(players[i].sock, buf, strlen(buf));
+    }
+    close(soc_waiting);
+    
     // await-async chat 
     fd_set readset,readset_origin;
     FD_ZERO(&readset);
-    for(int i = 0; i < playerNum; i++) FD_SET(soc_comm[i],&readset);
+    for(int i = 0; i < playerNum; i++) FD_SET(players[i].sock,&readset);
     readset_origin = readset;
     do{
         readset = readset_origin;
-        select(soc_comm[playerNum-1]+1,&readset,NULL,NULL,NULL);
+        select(players[playerNum-1].sock+1,&readset,NULL,NULL,NULL);
         for (int i = 0; i < playerNum; i++){
-            if(FD_ISSET(soc_comm[i],&readset)){
-                int n = read(soc_comm[i],buf,BUF_LEN);
-                for (int j = 1;j < playerNum;j++) write(soc_comm[(i+j)%playerNum],buf,n);
+            if(FD_ISSET(players[i].sock,&readset)){
+                int n = read(players[i].sock,buf,BUF_LEN);
+                for (int j = 1;j < playerNum;j++) write(players[(i+j)%playerNum].sock,buf,n);
                 write(1,buf,n);
             }
         }
     }while(strncmp(buf,"quit",4) != 0);
     
-    for(int i = 0;i < playerNum;i++) close(soc_comm[i]);
+    for(int i = 0;i < playerNum;i++) close(players[i].sock);
 }
+
