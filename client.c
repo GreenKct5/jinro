@@ -52,6 +52,9 @@ int main()
         perror("connect");
         exit(1);
     }
+    // 名前を送信
+    write(soc, username, strlen(username) + 1);
+    
     write(1,"Go Ahead!\n",strlen("Go Ahead!"));
     // await-async chat 
     fd_set readset,readset_origin;

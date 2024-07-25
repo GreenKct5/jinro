@@ -48,7 +48,10 @@ int main()
     listen(soc_waiting,playerNum);
     // Player型の配列を宣言
     Player players[playerNum];
-    for ( int i = 0; i < playerNum; i++) players[i].sock = accept(soc_waiting,NULL,NULL);
+    for (int i = 0; i < playerNum; i++) {
+        players[i].sock = accept(soc_waiting, NULL, NULL);
+        read(players[i].sock, players[i].name, BUF_LEN);
+    }
 
     Role trash[2]; // 使わない役職を格納する配列 
     randomRole(players,trash,playerNum); // 役職をランダムに割り振る
