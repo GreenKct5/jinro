@@ -8,6 +8,7 @@
 #include <netinet/in.h>
 #include <netdb.h>
 #include <time.h>
+#include <pthread.h>
 #include "./mylib/hachi.h"
 #include "./mylib/koto.h"
 #include "./mylib/noname.h"
@@ -15,51 +16,60 @@
 
 #define PORT (in_port_t)    50000
 #define BUF_LEN             512
-
-int main()
-{
+int main() {
     struct sockaddr_in me;
-    int playerNum;
+    int playerNum = 2;
     int soc_waiting;
     char buf[BUF_LEN];
-    char username[BUF_LEN];
-    char message[] = "Please input your name        : "; 
 
     printf("%s\n", hello_hachi());
     printf("%s\n", hello_koto());
     printf("%s\n", hello_noname());
     printf("%s\n", hello_takema());
 
-    write(1,message,strlen(message));
-    read(0,username,BUF_LEN);
-    chop_newline(username,BUF_LEN);
-    write(1,"Please input player num    :",strlen("Please input player num    :"));
-    scanf("%d",&playerNum);
-    
-    memset((char *)&me,0,sizeof(me));           // initialize "me"
-    me.sin_family = AF_INET;                    // configure protocol (AF_INET: IPv4)
-    me.sin_addr.s_addr = htonl(INADDR_ANY);     // configure own IP Address (INADDR_ANY: 0.0.0.0)
-    me.sin_port = htons(PORT);                  // configure port number
+    write(1, "このゲームは4人プレイです\n", strlen("このゲームは4人プレイです\n"));
 
-    if((soc_waiting = socket(AF_INET,SOCK_STREAM,0)) < 0){
+    // タイマーの分と秒を設定
+    int minutes = 2;
+    int seconds = 30;
+
+    memset((char *)&me, 0, sizeof(me));           // initialize "me"
+    me.sin_family = AF_INET;                      // configure protocol (AF_INET: IPv4)
+    me.sin_addr.s_addr = htonl(INADDR_ANY);       // configure own IP Address (INADDR_ANY: 0.0.0.0)
+    me.sin_port = htons(PORT);                    // configure port number
+
+    if ((soc_waiting = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
         perror("socket");
         exit(1);
     }
-    
-    if(bind(soc_waiting,(struct sockaddr *)&me,sizeof(me)) == -1){
+
+    if (bind(soc_waiting, (struct sockaddr *)&me, sizeof(me)) == -1) {
         perror("bind");
         exit(1);
     }
 
-    listen(soc_waiting,playerNum);
-    // Player型の配列を宣言
+    listen(soc_waiting, playerNum);
     Player players[playerNum];
-    for ( int i = 0; i < playerNum; i++) players[i].sock = accept(soc_waiting,NULL,NULL);
+    for (int i = 0; i < playerNum; i++) {
+        players[i].sock = accept(soc_waiting, NULL, NULL);
+        read(players[i].sock, players[i].name, BUF_LEN);
+    }
 
-    Role trash[2]; // 使わない役職を格納する配列 
-    randomRole(players,trash,playerNum); // 役職をランダムに割り振る
+    int client_socks[playerNum + 3];
+    client_socks[0] = playerNum;
+    client_socks[1] = minutes;
+    client_socks[2] = seconds;
+    for (int i = 0; i < playerNum; i++) {
+        client_socks[i + 3] = players[i].sock;
+    }
 
-    // 割り振った役職をクライアントに表示
+    // タイマーを別スレッドで起動
+    pthread_t timer_thread;
+    pthread_create(&timer_thread, NULL, timer, (void*)client_socks);
+
+    Role trash[2];
+    randomRole(players, trash, playerNum);
+
     for (int i = 0; i < playerNum; i++) {
         snprintf(buf, BUF_LEN, "\nあなたの役職は %s です\n", strRole(players[i].role));
         write(players[i].sock, buf, strlen(buf));
@@ -71,22 +81,37 @@ int main()
     }    
     
     // await-async chat 
-    fd_set readset,readset_origin;
+    fd_set readset, readset_origin;
     FD_ZERO(&readset);
-    for(int i = 0; i < playerNum; i++) FD_SET(players[i].sock,&readset);
+    for (int i = 0; i < playerNum; i++) FD_SET(players[i].sock, &readset);
     readset_origin = readset;
-    do{
+
+    do {
         readset = readset_origin;
-        select(players[playerNum-1].sock+1,&readset,NULL,NULL,NULL);
-        for (int i = 0; i < playerNum; i++){
-            if(FD_ISSET(players[i].sock,&readset)){
-                int n = read(players[i].sock,buf,BUF_LEN);
-                for (int j = 1;j < playerNum;j++) write(players[(i+j)%playerNum].sock,buf,n);
-                write(1,buf,n);
+        select(players[playerNum - 1].sock + 1, &readset, NULL, NULL, NULL);
+        for (int i = 0; i < playerNum; i++) {
+            if (FD_ISSET(players[i].sock, &readset)) {
+                int n = read(players[i].sock, buf, BUF_LEN);
+                if (n > 0) {
+                    buf[n] = '\0';
+
+                    time_t now = time(NULL);
+                    struct tm *t = localtime(&now);
+                    char time_str[256];
+                    strftime(time_str, sizeof(time_str), "%Y-%m-%d %H:%M:%S", t);
+
+                    char message[BUF_LEN + 256];
+                    snprintf(message, sizeof(message), "(%s: %s) -> %s", players[i].name, time_str, buf);
+                    for (int j = 0; j < playerNum; j++) {
+                        if (j != i) {
+                            write(players[j].sock, message, strlen(message));
+                        }
+                    }
+                }
             }
         }
-    }while(strncmp(buf,"quit",4) != 0);
-    
-    for(int i = 0;i < playerNum;i++) close(players[i].sock);
-}
+    } while (strncmp(buf, "quit", 4) != 0);
 
+    for (int i = 0; i < playerNum; i++) close(players[i].sock);
+    pthread_join(timer_thread, NULL);
+}
