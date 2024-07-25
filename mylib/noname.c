@@ -7,10 +7,6 @@
 #include <string.h>
 #include "noname.h"
 
-char* hello_noname() {
-    return "Hello. I'm noname!";
-}
-
 void* timer(void* arg) {
     int* params = (int*)arg;
     int client_count = params[0];

@@ -3,10 +3,6 @@
 #include <unistd.h>
 #include "./takema.h"
 
-char * hello_hachi(){
-    return "Hello. I'm hachi!";
-}
-
 void displayPlayersName(int playerNum, Player *players){
     const char *header = "プレイヤーの一覧\n";
 

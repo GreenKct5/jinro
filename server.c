@@ -22,11 +22,6 @@ int main() {
     int soc_waiting;
     char buf[BUF_LEN];
 
-    printf("%s\n", hello_hachi());
-    printf("%s\n", hello_koto());
-    printf("%s\n", hello_noname());
-    printf("%s\n", hello_takema());
-
     write(1, "このゲームは4人プレイです\n", strlen("このゲームは4人プレイです\n"));
 
     // タイマーの分と秒を設定

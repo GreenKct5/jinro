@@ -17,10 +17,6 @@
 int VoteDisclosure(int *votes, int playerNum);
 int getWolfNum(Player * players, int playerNum);
 
-char * hello_koto() {
-    return "Hello. I'm koto!";
-}
-
 // 配列から改行ををなくす
 char * chop_newline(char *str,int len){
     int n = strlen(str);

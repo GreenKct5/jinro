@@ -14,10 +14,6 @@
 #define MAX_NAME_LENGTH 15
 #define BUF_LEN 256
 
-char * hello_takema() {
-    return "Hello. I'm takema!";
-}
-
 char * strRole(Role role) {
     switch (role) {
         case VILLAGER:
