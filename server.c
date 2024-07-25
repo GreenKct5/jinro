@@ -55,6 +55,9 @@ int main() {
         read(players[i].sock, players[i].name, BUF_LEN);
     }
 
+    // 誰と通信するか伝える
+    displayPlayersName(playerNum, players);
+
     int client_socks[playerNum + 3];
     client_socks[0] = playerNum;
     client_socks[1] = minutes;
