@@ -40,6 +40,32 @@ void displayPlayersName(int playerNum, Player *players){
     }
 }
 
+// 人狼の人数を数える関数
+void checkwolf(Player* player, Player* players, int playerNum) {
+    if (player->role == WEREWOLF) {
+        char wolfNames[256] = "";
+        int wolfCount = 0;
+        
+        for (int i = 0; i < playerNum; i++) {
+            if (players[i].role == WEREWOLF && &players[i] != player) {
+                if (wolfCount > 0) {
+                    strcat(wolfNames, ", ");
+                }
+                strcat(wolfNames, players[i].name);
+                wolfCount++;
+            }
+        }
+
+        char message[256];
+        if (wolfCount > 0) {
+            snprintf(message, sizeof(message), "仲間の人狼は %s です\n", wolfNames);
+        } else {
+            snprintf(message, sizeof(message), "人狼はあなた一人です\n");
+        }
+        write(player->sock, message, strlen(message));
+    }
+}
+
 void divination(Player* seer, Player* players, int playerNum) {
     char buf[BUF_LEN];
     char option[64];
@@ -66,7 +92,7 @@ void divination(Player* seer, Player* players, int playerNum) {
     chop_newline(buf, BUF_LEN);
 
     // 入力の処理
-    choice = buf[0] - 'a';
+    choice = (buf[0] - 'a')+1;
     if (choice >= 0 && choice < optionIndex) {
         // 占う相手の役職を表示
         write(seer->sock, "占った結果:\n", strlen("占った結果:\n"));
@@ -169,6 +195,8 @@ void voting(int playerNum, Player *players) {
         int sock = players[i].sock;
         char option[64];
         int optionIndex = 1;
+
+        write(sock, "\n恐ろしい夜になりました．投票してください\n", strlen("\n恐ろしい夜になりました．投票してください\n"));
 
         write(sock, "誰に投票しますか\n", strlen("誰に投票しますか\n"));
 

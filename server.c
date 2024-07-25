@@ -88,14 +88,14 @@ void* timer(void* arg) {
 
 int main() {
     struct sockaddr_in me;
-    int playerNum = 2;
+    int playerNum = 4;
     int soc_waiting;
     char buf[BUF_LEN];
 
     write(1, "このゲームは4人プレイです\n", strlen("このゲームは4人プレイです\n"));
 
     // タイマーの分と秒を設定
-    int minutes = 0;
+    int minutes = 2;
     int seconds = 30;
 
     memset((char *)&me, 0, sizeof(me));
@@ -136,6 +136,7 @@ int main() {
     for (int i = 0; i < playerNum; i++) {
         snprintf(buf, BUF_LEN, "\nあなたの役職は %s です\n", strRole(players[i].role));
         write(players[i].sock, buf, strlen(buf));
+        if (players[i].role == WEREWOLF) checkwolf(&players[i], players, playerNum);
         if (players[i].role == SEER) divination(&players[i], players, playerNum);
     }
     for (int i = 0; i < playerNum; i++) {
@@ -149,6 +150,7 @@ int main() {
     // コールバックの設定
     set_end_game_callback(endGameWrapper);
 
+
     // タイマーを別スレッドで起動
     pthread_t timer_thread;
     int result = pthread_create(&timer_thread, NULL, timer, (void*)client_socks);
@@ -157,6 +159,10 @@ int main() {
         exit(1);
     }
 
+    for (int i = 0; i < playerNum; i++) {
+        write(players[i].sock, "おはようございます．朝になりました\n話し合いを初めてください\n", strlen("おはようございます．朝になりました\n話し合いを初めてください\n"));
+    }
+    
     close(soc_waiting);
 
     fd_set readset, readset_origin;
