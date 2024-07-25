@@ -37,7 +37,7 @@ int main()
     write(1,"Please input player num    :",strlen("Please input player num    :"));
     scanf("%d",&playerNum);
 
-    // タイマーの分と秒を設定（デフォルト値を使用）
+    // タイマーの分と秒を設定
     int minutes = 2;
     int seconds = 30;
     // write(1,"Please input timer minutes :",strlen("Please input timer minutes :"));

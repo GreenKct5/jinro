@@ -31,14 +31,14 @@ void* timer(void* arg) {
         int remaining_seconds = remaining % 60; // 残り秒数を計算
 
         if (remaining < 0) {
-            snprintf(buffer, sizeof(buffer), "\n~~~~~~\n時間切れ\n終了\n~~~~~~\n");
+            snprintf(buffer, sizeof(buffer), "\n~~~~~~~~~~~~~~~~~~\n時間切れ\n終了\n~~~~~~~~~~~~~~~~~~\n");
             for (int i = 0; i < client_count; i++) {
                 send(socks[i], buffer, strlen(buffer), 0); // クライアントに表示
             }
             printf("%s", buffer); // サーバにも表示
             break;
         } else if (remaining % 30 == 0) {
-            snprintf(buffer, sizeof(buffer), "\n~~~~~~\n残り時間は、%02d分%02d秒 です。\n~~~~~~\n", remaining_minutes, remaining_seconds);
+            snprintf(buffer, sizeof(buffer), "\n~~~~~~~~~~~~~~~~~~~~~~~~~~~\n残り時間は、%02d分%02d秒 です。\n~~~~~~~~~~~~~~~~~~~~~~~~~~~\n", remaining_minutes, remaining_seconds);
             for (int i = 0; i < client_count; i++) {
                 send(socks[i], buffer, strlen(buffer), 0); // クライアントに表示
             }
