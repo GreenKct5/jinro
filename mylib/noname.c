@@ -7,10 +7,6 @@
 #include <string.h>
 #include "noname.h"
 
-char* hello_noname() {
-    return "Hello. I'm noname!";
-}
-
 void* timer(void* arg) {
     int* params = (int*)arg;
     int client_count = params[0];
@@ -61,18 +57,3 @@ void chatroom_kari(){
     sleep(5); // 1秒待機
     printf("[takema]占い対抗出ます。\n"); // 仮のチャット
 }
-
-// int main() {
-//     pthread_t timer_thread;
-//     int params[3] = {1, 1, 30}; // 移動する行数、分、秒
-
-//     pthread_create(&timer_thread, NULL, timer, (void*)params); // タイマーを別スレッドで起動
-
-//     // 他のプログラムの処理
-//     chatroom_kari();
-
-//     // タイマーのスレッドが終了するのを待つ
-//     pthread_join(timer_thread, NULL);
-
-//     return 0;
-// }

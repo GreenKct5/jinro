@@ -17,10 +17,6 @@
 int VoteDisclosure(int *votes, int playerNum);
 int getWolfNum(Player * players, int playerNum);
 
-char * hello_koto() {
-    return "Hello. I'm koto!";
-}
-
 // 配列から改行ををなくす
 char * chop_newline(char *str,int len){
     int n = strlen(str);
@@ -102,11 +98,11 @@ int VoteDisclosure(int *votes, int playerNum){
 
 // 人狼の人数を数える
 int getWolfNum(Player * players, int playerNum){
-    Player wolfList[2] = {0}; // 人狼プレイヤーの配列
+    // Player wolfList[2] = {0}; // 人狼プレイヤーの配列
     int wolfNum = 0;
     for(int i=0; i<playerNum; i++){
             if(players[i].role == WEREWOLF){
-                wolfList[wolfNum] = players[i];
+                // wolfList[wolfNum] = players[i];
                 wolfNum++;
             }
         }

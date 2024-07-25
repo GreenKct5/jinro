@@ -18,14 +18,9 @@
 #define BUF_LEN             512
 int main() {
     struct sockaddr_in me;
-    int playerNum = 4;
+    int playerNum = 2;
     int soc_waiting;
     char buf[BUF_LEN];
-
-    printf("%s\n", hello_hachi());
-    printf("%s\n", hello_koto());
-    printf("%s\n", hello_noname());
-    printf("%s\n", hello_takema());
 
     write(1, "このゲームは4人プレイです\n", strlen("このゲームは4人プレイです\n"));
 
@@ -54,6 +49,9 @@ int main() {
         players[i].sock = accept(soc_waiting, NULL, NULL);
         read(players[i].sock, players[i].name, BUF_LEN);
     }
+
+    // 誰と通信するか伝える
+    displayPlayersName(playerNum, players);
 
     int client_socks[playerNum + 3];
     client_socks[0] = playerNum;
