@@ -49,6 +49,13 @@ int main() {
     write(soc, username, strlen(username) + 1);
     write(1, "Go Ahead!\n", strlen("Go Ahead!\n"));
 
+    // 役職メッセージを受信
+    int n = read(soc, buf, BUF_LEN);
+    if (n > 0) {
+        buf[n] = '\0';
+        write(1, buf, n);
+    }
+
     fd_set readset, readset_origin;
     int fd = soc;
 

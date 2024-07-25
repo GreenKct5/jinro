@@ -63,10 +63,6 @@ int main() {
         client_socks[i + 3] = players[i].sock;
     }
 
-    // タイマーを別スレッドで起動
-    pthread_t timer_thread;
-    pthread_create(&timer_thread, NULL, timer, (void*)client_socks);
-
     Role trash[2];
     randomRole(players, trash, playerNum);
 
@@ -74,8 +70,17 @@ int main() {
         snprintf(buf, BUF_LEN, "\nあなたの役職は %s です\n", strRole(players[i].role));
         write(players[i].sock, buf, strlen(buf));
     }
-    close(soc_waiting);
+    for (int i = 0;i < playerNum; i++) {
+        if (players[i].role == THIEF)  selectVictim(&players[i],players,playerNum); // 怪盗の場合は盗む相手を選択し、盗む処理を行う
+    } 
+     
+    // タイマーを別スレッドで起動
+    pthread_t timer_thread;
+    pthread_create(&timer_thread, NULL, timer, (void*)client_socks);
 
+    close(soc_waiting);  
+    
+    // await-async chat 
     fd_set readset, readset_origin;
     FD_ZERO(&readset);
     for (int i = 0; i < playerNum; i++) FD_SET(players[i].sock, &readset);
