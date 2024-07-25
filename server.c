@@ -8,6 +8,7 @@
 #include <netinet/in.h>
 #include <netdb.h>
 #include <time.h>
+#include <pthread.h>
 #include "./mylib/hachi.h"
 #include "./mylib/koto.h"
 #include "./mylib/noname.h"
@@ -29,6 +30,14 @@ int main()
     printf("%s\n", hello_takema());
 
     write(1,"このゲームは4人プレイです\n",strlen("このゲームは4人プレイです\n"));
+
+    // タイマーの分と秒を設定
+    int minutes = 2;
+    int seconds = 30;
+    // write(1,"Please input timer minutes :",strlen("Please input timer minutes :"));
+    // scanf("%d", &minutes);
+    // write(1,"Please input timer seconds :",strlen("Please input timer seconds :"));
+    // scanf("%d", &seconds);
     
     memset((char *)&me,0,sizeof(me));           // initialize "me"
     me.sin_family = AF_INET;                    // configure protocol (AF_INET: IPv4)
@@ -53,6 +62,16 @@ int main()
         read(players[i].sock, players[i].name, BUF_LEN);
     }
 
+    // 全員の参加を確認した後にタイマーを開始
+    int client_socks[playerNum + 3];
+    client_socks[0] = playerNum;
+    client_socks[1] = minutes;
+    client_socks[2] = seconds;
+    
+
+    pthread_t timer_thread;
+    pthread_create(&timer_thread, NULL, timer, (void*)client_socks); // タイマーを別スレッドで起動
+
     Role trash[2]; // 使わない役職を格納する配列 
     randomRole(players,trash,playerNum); // 役職をランダムに割り振る
 
@@ -68,7 +87,8 @@ int main()
     FD_ZERO(&readset);
     for(int i = 0; i < playerNum; i++) FD_SET(players[i].sock,&readset);
     readset_origin = readset;
-    voting(playerNum, players);
+    // 投票
+    // voting(playerNum, players);
     do{
         readset = readset_origin;
         select(players[playerNum-1].sock+1,&readset,NULL,NULL,NULL);
@@ -92,14 +112,11 @@ int main()
                             write(players[j].sock, message, strlen(message));
                         }
                     }
-
-                    // サーバーにメッセージを表示
-                    write(1, message, strlen(message));
                 }
             }
         }
     }while(strncmp(buf,"quit",4) != 0);
     
     for(int i = 0;i < playerNum;i++) close(players[i].sock);
+    pthread_join(timer_thread, NULL);
 }
-
