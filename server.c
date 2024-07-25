@@ -11,11 +11,82 @@
 #include <pthread.h>
 #include "./mylib/hachi.h"
 #include "./mylib/koto.h"
-#include "./mylib/noname.h"
 #include "./mylib/takema.h"
 
-#define PORT (in_port_t)    50000
-#define BUF_LEN             512
+#define PORT (in_port_t) 50000
+#define BUF_LEN 512
+
+// グローバル変数を定義
+typedef void (*end_game_callback_t)(void);
+static int global_playerNum;
+static Player *global_players;
+
+// コールバックラッパー関数
+void endGameWrapper(void) {
+    voting(global_playerNum, global_players);
+}
+
+static end_game_callback_t end_game_callback = NULL;
+void set_end_game_callback(end_game_callback_t callback) {
+    end_game_callback = callback;
+}
+
+void* timer(void* arg) {
+    int* params = (int*)arg;
+    int client_count = params[0];
+    int minutes = params[1];
+    int seconds = params[2];
+    int* socks = &params[3];
+    time_t start, current;
+    int total_seconds = minutes * 60 + seconds; // 指定された時間を秒に変換
+    time(&start); // タイマーの開始時間を取得
+
+    char buffer[1024];
+
+    while (1) {
+        time(&current); // 現在の時間を取得
+        int elapsed = difftime(current, start); // 経過時間を計算
+        int remaining = total_seconds - elapsed; // 残り時間を計算
+
+        if (remaining < 0) {
+            snprintf(buffer, sizeof(buffer), "\n~~~~~~~~~~~~~~~~~~~~~~~~~~\n時間切れ\n話し合いを終了して下さい。\n~~~~~~~~~~~~~~~~~~~~~~~~~~\n");
+            for (int i = 0; i < client_count; i++) {
+                if (send(socks[i], buffer, strlen(buffer), 0) < 0) {
+                    perror("send");
+                }
+            }
+            printf("%s", buffer); // サーバにも表示
+
+            // コールバックを呼び出す
+            if (end_game_callback) {
+                end_game_callback();
+            }
+            
+            break;
+        } else if (remaining % 30 == 0) {
+            int remaining_minutes = remaining / 60; // 残り分数を計算
+            int remaining_seconds = remaining % 60; // 残り秒数を計算
+            snprintf(buffer, sizeof(buffer), "\n~~~~~~~~~~~~~~~~~~~~~~~~~~~\n残り時間は、%02d分%02d秒 です。\n~~~~~~~~~~~~~~~~~~~~~~~~~~~\n", remaining_minutes, remaining_seconds);
+            for (int i = 0; i < client_count; i++) {
+                if (send(socks[i], buffer, strlen(buffer), 0) < 0) {
+                    perror("send");
+                }
+            }
+            printf("%s", buffer); // サーバにも表示
+            sleep(1); // 1秒待機
+        } else {
+            sleep(1); // 1秒待機
+        }
+    }
+
+    for (int i = 0; i < client_count; i++) {
+        if (close(socks[i]) < 0) {
+            perror("close");
+        }
+    }
+    return NULL;
+}
+
 int main() {
     struct sockaddr_in me;
     int playerNum = 2;
@@ -25,13 +96,13 @@ int main() {
     write(1, "このゲームは4人プレイです\n", strlen("このゲームは4人プレイです\n"));
 
     // タイマーの分と秒を設定
-    int minutes = 2;
+    int minutes = 0;
     int seconds = 30;
 
-    memset((char *)&me, 0, sizeof(me));           // initialize "me"
-    me.sin_family = AF_INET;                      // configure protocol (AF_INET: IPv4)
-    me.sin_addr.s_addr = htonl(INADDR_ANY);       // configure own IP Address (INADDR_ANY: 0.0.0.0)
-    me.sin_port = htons(PORT);                    // configure port number
+    memset((char *)&me, 0, sizeof(me));
+    me.sin_family = AF_INET;
+    me.sin_addr.s_addr = htonl(INADDR_ANY);
+    me.sin_port = htons(PORT);
 
     if ((soc_waiting = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
         perror("socket");
@@ -50,7 +121,6 @@ int main() {
         read(players[i].sock, players[i].name, BUF_LEN);
     }
 
-    // 誰と通信するか伝える
     displayPlayersName(playerNum, players);
 
     int client_socks[playerNum + 3];
@@ -67,20 +137,29 @@ int main() {
     for (int i = 0; i < playerNum; i++) {
         snprintf(buf, BUF_LEN, "\nあなたの役職は %s です\n", strRole(players[i].role));
         write(players[i].sock, buf, strlen(buf));
-        // 占いの方が怪盗より先に選択する必要があるためここに記述
-        if (players[i].role == SEER) divination(&players[i],players,playerNum); // 占い師の場合
+        if (players[i].role == SEER) divination(&players[i], players, playerNum);
     }
     for (int i = 0; i < playerNum; i++) {
-        if (players[i].role == THIEF)  selectVictim(&players[i],players,playerNum); // 怪盗の場合は盗む相手を選択し、盗む処理を行う
-    } 
-     
+        if (players[i].role == THIEF) selectVictim(&players[i], players, playerNum);
+    }
+
+    // グローバル変数に設定
+    global_playerNum = playerNum;
+    global_players = players;
+
+    // コールバックの設定
+    set_end_game_callback(endGameWrapper);
+
     // タイマーを別スレッドで起動
     pthread_t timer_thread;
-    pthread_create(&timer_thread, NULL, timer, (void*)client_socks);
+    int result = pthread_create(&timer_thread, NULL, timer, (void*)client_socks);
+    if (result != 0) {
+        fprintf(stderr, "Failed to create timer thread: %s\n", strerror(result));
+        exit(1);
+    }
 
-    close(soc_waiting);  
-    
-    // await-async chat 
+    close(soc_waiting);
+
     fd_set readset, readset_origin;
     FD_ZERO(&readset);
     for (int i = 0; i < playerNum; i++) FD_SET(players[i].sock, &readset);
@@ -114,4 +193,6 @@ int main() {
 
     for (int i = 0; i < playerNum; i++) close(players[i].sock);
     pthread_join(timer_thread, NULL);
+
+    return 0;
 }
