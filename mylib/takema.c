@@ -74,3 +74,54 @@ int stealRole(Player* thief,Player* victim){
 
     return 0;
 }
+/// @brief 怪盗が盗む役職を選択する関数
+/// @param thief 怪盗のプレイヤーのアドレス
+/// @param players プレイヤーの配列
+/// @param playerNum プレイヤー人数
+int selectVictim(Player* thief,Player* players,int playerNum){
+    char buf[BUF_LEN];
+    int victimNum = 0;
+
+    while(1){
+        snprintf(buf,BUF_LEN,"誰から役職を盗みますか？\n");
+        write(thief->sock,buf,strlen(buf));
+        for (int i = 0; i < playerNum; i++) {
+            snprintf(buf,BUF_LEN,"%d: %s\n",i+1,players[i].name);
+            write(thief->sock,buf,strlen(buf));
+        }
+        read(thief->sock,buf,BUF_LEN);
+        sscanf(buf,"%d",&victimNum);
+        victimNum--;
+
+        if (victimNum < 0 || victimNum >= playerNum) {
+            snprintf(buf,BUF_LEN,"そのプレイヤーは存在しません\n");
+            write(thief->sock,buf,strlen(buf));
+            continue;
+        }
+        break;
+    }
+    int choice = 0;
+    while(1){
+        snprintf(buf,BUF_LEN,"%sさんの役職は%sです。\n役職を盗みますか？\n1: 盗む\n2: 盗まない\n",players[victimNum].name,strRole(players[victimNum].role));
+        write(thief->sock,buf,strlen(buf));
+        read(thief->sock,buf,BUF_LEN);
+        sscanf(buf,"%d",&choice);
+        switch (choice)
+        {
+        case 1:
+            stealRole(thief,&players[victimNum]);
+            snprintf(buf,BUF_LEN,"%sさんの役職を盗みました\nあなたの役職は%sです。",players[victimNum].name,strRole(thief->role));
+            write(thief->sock,buf,strlen(buf));
+            break;
+        case 2:
+            snprintf(buf,BUF_LEN,"盗みませんでした。\nあなたは市民陣営です。\n");
+            write(thief->sock,buf,strlen(buf));
+            break;
+        default:
+            snprintf(buf,BUF_LEN,"1か2を入力してください\n");
+            write(thief->sock,buf,strlen(buf));
+            continue;
+        }
+    }
+    return 0;
+}
