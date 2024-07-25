@@ -5,7 +5,7 @@ CC = gcc
 CFLAGS = -Wall -Wextra -Werror
 
 # Source files
-SRCS = hachi.c koto.c takema.c
+SRCS = koto.c takema.c
 
 # Object files
 OBJS = $(SRCS:.c=.o)

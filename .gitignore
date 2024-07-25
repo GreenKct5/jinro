@@ -1,5 +1,4 @@
 mylib/mylib.a
-mylib/hachi.o
 mylib/koto.o
 mylib/takema.o
 mylib/output

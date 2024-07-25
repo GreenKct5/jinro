@@ -10,7 +10,6 @@
 #include <sys/select.h>
 #include <time.h>
 #include <pthread.h>
-#include "./mylib/hachi.h"
 #include "./mylib/koto.h"
 #include "./mylib/takema.h"
 

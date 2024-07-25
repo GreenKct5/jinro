@@ -26,6 +26,20 @@ char * chop_newline(char *str,int len){
     return str;
 }
 
+void displayPlayersName(int playerNum, Player *players){
+    const char *header = "プレイヤーの一覧\n";
+
+    for(int i = 0; i < playerNum; i++){
+        int sock = players[i].sock;
+        write(sock, "\n", strlen("\n"));
+        write(sock, header, strlen(header));
+        for(int j = 0; j < playerNum; j++){
+            write(sock, players[j].name, strlen(players[j].name));
+            write(sock, "\n", strlen("\n"));
+        }
+    }
+}
+
 void divination(Player* seer, Player* players, int playerNum) {
     char buf[BUF_LEN];
     char option[64];
