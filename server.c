@@ -18,7 +18,7 @@
 #define BUF_LEN             512
 int main() {
     struct sockaddr_in me;
-    int playerNum = 2;
+    int playerNum = 4;
     int soc_waiting;
     char buf[BUF_LEN];
 
