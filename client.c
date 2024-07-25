@@ -70,18 +70,7 @@ int main()
     readset = readset_origin;
     select(fd+1,&readset,NULL,NULL,NULL);
         if(FD_ISSET(0,&readset)){
-            // time_t now;
-            // struct tm *t;
-            // time(&now);
-            // t = localtime(&now);
-            // char time[256];
-            // int timeLen = strftime(time,256,", %X)-> ",t);
-
             int n = read(0,buf,BUF_LEN);
-
-            // write(fd,"(",strlen("("));
-            // write(fd,username,strlen(username));
-            // write(fd,time,timeLen);
             write(fd,buf,n);
         }
         if(FD_ISSET(fd,&readset)){
