@@ -20,22 +20,16 @@
 int main()
 {
     struct sockaddr_in me;
-    int playerNum;
+    int playerNum = 4;
     int soc_waiting;
     char buf[BUF_LEN];
-    char username[BUF_LEN];
-    char message[] = "Please input your name        : "; 
 
     printf("%s\n", hello_hachi());
     printf("%s\n", hello_koto());
     printf("%s\n", hello_noname());
     printf("%s\n", hello_takema());
 
-    write(1,message,strlen(message));
-    read(0,username,BUF_LEN);
-    chop_newline(username,BUF_LEN);
-    write(1,"Please input player num    :",strlen("Please input player num    :"));
-    scanf("%d",&playerNum);
+    write(1,"このゲームは4人プレイです\n",strlen("このゲームは4人プレイです\n"));
 
     // タイマーの分と秒を設定
     int minutes = 2;
@@ -63,16 +57,18 @@ int main()
     listen(soc_waiting,playerNum);
     // Player型の配列を宣言
     Player players[playerNum];
-    for ( int i = 0; i < playerNum; i++) players[i].sock = accept(soc_waiting,NULL,NULL);
+    for (int i = 0; i < playerNum; i++) {
+        players[i].sock = accept(soc_waiting, NULL, NULL);
+        read(players[i].sock, players[i].name, BUF_LEN);
+    }
 
     // 全員の参加を確認した後にタイマーを開始
     int client_socks[playerNum + 3];
     client_socks[0] = playerNum;
     client_socks[1] = minutes;
     client_socks[2] = seconds;
-    for (int i = 0; i < playerNum; i++) {
-        client_socks[i + 3] = soc_comm[i];
-    }
+    
+
     pthread_t timer_thread;
     pthread_create(&timer_thread, NULL, timer, (void*)client_socks); // タイマーを別スレッドで起動
 
@@ -91,19 +87,36 @@ int main()
     FD_ZERO(&readset);
     for(int i = 0; i < playerNum; i++) FD_SET(players[i].sock,&readset);
     readset_origin = readset;
-
+    // 投票
+    // voting(playerNum, players);
     do{
         readset = readset_origin;
         select(players[playerNum-1].sock+1,&readset,NULL,NULL,NULL);
-        for (int i = 0; i < playerNum; i++){
-            if(FD_ISSET(players[i].sock,&readset)){
-                int n = read(players[i].sock,buf,BUF_LEN);
-                for (int j = 1;j < playerNum;j++) write(players[(i+j)%playerNum].sock,buf,n);
-                write(1,buf,n);
+        for (int i = 0; i < playerNum; i++) {
+            if(FD_ISSET(players[i].sock, &readset)) {
+                int n = read(players[i].sock, buf, BUF_LEN);
+                if (n > 0) {
+                    buf[n] = '\0';
+
+                    // 現在の時間を取得
+                    time_t now = time(NULL);
+                    struct tm *t = localtime(&now);
+                    char time_str[256];
+                    strftime(time_str, sizeof(time_str), "%Y-%m-%d %H:%M:%S", t);
+
+                    // 送信者の名前と時間を付加してメッセージを生成
+                    char message[BUF_LEN + 256];
+                    snprintf(message, sizeof(message), "(%s: %s) -> %s", players[i].name, time_str, buf);
+                    for (int j = 0; j < playerNum; j++) {
+                        if (j != i) {
+                            write(players[j].sock, message, strlen(message));
+                        }
+                    }
+                }
             }
         }
     }while(strncmp(buf,"quit",4) != 0);
     
-    for(int i = 0;i < playerNum;i++) close(soc_comm[i]);
+    for(int i = 0;i < playerNum;i++) close(players[i].sock);
     pthread_join(timer_thread, NULL);
 }
