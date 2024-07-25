@@ -29,6 +29,7 @@ server: $(filter-out $(OBJDIR)/client.o, $(OBJS))
 client: $(filter-out $(OBJDIR)/server.o, $(OBJS))
 	$(CC) $(CFLAGS) -o $@ $^
 
+
 # Compile .c files to .o files
 $(OBJDIR)/%.o: $(SRCDIR)/%.c | $(OBJDIR)
 	$(CC) $(CFLAGS) -c $< -o $@
