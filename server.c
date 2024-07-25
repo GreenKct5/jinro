@@ -28,9 +28,7 @@ int main()
     printf("%s\n", hello_noname());
     printf("%s\n", hello_takema());
 
-    // write(1,"Please input player num    :",strlen("Please input player num    :"));
-    // scanf("%d",&playerNum);
-    write(1,"このゲームは4人プレイです",strlen("このゲームは4人プレイです"));
+    write(1,"このゲームは4人プレイです\n",strlen("このゲームは4人プレイです\n"));
     
     memset((char *)&me,0,sizeof(me));           // initialize "me"
     me.sin_family = AF_INET;                    // configure protocol (AF_INET: IPv4)
@@ -66,8 +64,8 @@ int main()
     fd_set readset,readset_origin;
     FD_ZERO(&readset);
     for(int i = 0; i < playerNum; i++) FD_SET(players[i].sock,&readset);
-    voting(playerNum, players);
     readset_origin = readset;
+    voting(playerNum, players);
     do{
         readset = readset_origin;
         select(players[playerNum-1].sock+1,&readset,NULL,NULL,NULL);

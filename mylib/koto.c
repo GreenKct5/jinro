@@ -71,9 +71,9 @@ void voting(int playerNum, Player *players) {
     for(int i = 0; i < playerNum; i++){
         int sock = players[i].sock;
         char option[64];
-        write(sock, "投票結果:\n", strlen("投票結果:\n"));
+        write(sock, "投票結果: ", strlen("投票結果: "));
         if (maxIndex != -1) {
-            snprintf(option, sizeof(option), "%s が一番多く投票されました", players[maxIndex].name);
+            snprintf(option, sizeof(option), "%s が一番多く投票されました.", players[maxIndex].name);
             write(sock, option, strlen(option));
             if(players[maxIndex].role == WEREWOLF) write(sock, "村人陣営の勝ちです\n", strlen("村人陣営の勝ちです\n"));
             else if(players[maxIndex].role != WEREWOLF && wolfNum == 0) write(sock, "人狼はいませんでした．負けです\n", strlen("人狼はいませんでした．負けです\n"));
