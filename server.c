@@ -19,7 +19,7 @@
 int main()
 {
     struct sockaddr_in me;
-    int playerNum = 2;
+    int playerNum = 4;
     int soc_waiting;
     char buf[BUF_LEN];
 
@@ -72,11 +72,30 @@ int main()
     do{
         readset = readset_origin;
         select(players[playerNum-1].sock+1,&readset,NULL,NULL,NULL);
-        for (int i = 0; i < playerNum; i++){
-            if(FD_ISSET(players[i].sock,&readset)){
-                int n = read(players[i].sock,buf,BUF_LEN);
-                for (int j = 1;j < playerNum;j++) write(players[(i+j)%playerNum].sock,buf,n);
-                write(1,buf,n);
+        for (int i = 0; i < playerNum; i++) {
+            if(FD_ISSET(players[i].sock, &readset)) {
+                int n = read(players[i].sock, buf, BUF_LEN);
+                if (n > 0) {
+                    buf[n] = '\0';
+
+                    // 現在の時間を取得
+                    time_t now = time(NULL);
+                    struct tm *t = localtime(&now);
+                    char time_str[256];
+                    strftime(time_str, sizeof(time_str), "%Y-%m-%d %H:%M:%S", t);
+
+                    // 送信者の名前と時間を付加してメッセージを生成
+                    char message[BUF_LEN + 256];
+                    snprintf(message, sizeof(message), "(%s: %s) -> %s", players[i].name, time_str, buf);
+                    for (int j = 0; j < playerNum; j++) {
+                        if (j != i) {
+                            write(players[j].sock, message, strlen(message));
+                        }
+                    }
+
+                    // サーバーにメッセージを表示
+                    write(1, message, strlen(message));
+                }
             }
         }
     }while(strncmp(buf,"quit",4) != 0);
