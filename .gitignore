@@ -9,4 +9,9 @@ client.exe
 server.exe
 client
 server
+<<<<<<< HEAD
+.vscode/setting.json
+.vscode/
+=======
 .vscode
+>>>>>>> f8cfcf7970e319ca55a2c2d891ec596bed870fc8
