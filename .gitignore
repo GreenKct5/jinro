@@ -1,5 +1,5 @@
 mylib/mylib.a
-mylib/koto.o
+mylib/voting.o
 mylib/takema.o
 mylib/output
 obj

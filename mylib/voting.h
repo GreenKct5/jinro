@@ -1,5 +1,5 @@
-#ifndef KOTO_H
-#define KOTO_H
+#ifndef VOTING_H
+#define VOTING_H
 #include "./takema.h"
 
 char *chop_newline(char *str, int len);
@@ -12,4 +12,4 @@ int VoteDisclosure(int *votes, int playerNum);
 
 int selectVictim(Player* thief,Player* players,int playerNum);
 int stealRole(Player* thief,Player* victim);
-#endif /* KOTO_H */
+#endif /* VOTING_H */
