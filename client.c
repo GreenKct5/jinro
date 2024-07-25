@@ -10,10 +10,8 @@
 #include <sys/select.h>
 #include <time.h>
 #include <pthread.h>
-#include "./mylib/hachi.h"
-#include "./mylib/koto.h"
-#include "./mylib/noname.h"
-#include "./mylib/takema.h"
+#include "./mylib/voting.h"
+#include "./mylib/role.h"
 
 #define PORT (in_port_t) 50000
 #define BUF_LEN 512

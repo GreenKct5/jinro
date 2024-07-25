@@ -10,7 +10,7 @@
 #include <arpa/inet.h>
 #include <sys/select.h>
 #include <time.h>
-#include "./takema.h"
+#include "./role.h"
 
 #define BUF_LEN 512
 
@@ -24,6 +24,20 @@ char * chop_newline(char *str,int len){
         str[n-1] = '\0';
     }
     return str;
+}
+
+void displayPlayersName(int playerNum, Player *players){
+    const char *header = "プレイヤーの一覧\n";
+
+    for(int i = 0; i < playerNum; i++){
+        int sock = players[i].sock;
+        write(sock, "\n", strlen("\n"));
+        write(sock, header, strlen(header));
+        for(int j = 0; j < playerNum; j++){
+            write(sock, players[j].name, strlen(players[j].name));
+            write(sock, "\n", strlen("\n"));
+        }
+    }
 }
 
 void divination(Player* seer, Player* players, int playerNum) {
@@ -82,6 +96,66 @@ void divination(Player* seer, Player* players, int playerNum) {
         // 無効な入力の場合の処理
         write(seer->sock, "無効な選択です\n", strlen("無効な選択です\n"));
     }
+}
+
+int stealRole(Player *thief, Player *victim) {
+    if (thief->role != THIEF || victim->role == THIEF) return -1;
+
+    thief->role = victim->role;
+    victim->role = VILLAGER;
+
+    return 0;
+}
+
+int selectVictim(Player *thief, Player *players, int playerNum) {
+    char buf[BUF_LEN];
+    int victimNum = 0;
+
+    while (1) {
+        snprintf(buf, BUF_LEN, "誰から役職を盗みますか？\n");
+        write(thief->sock, buf, strlen(buf));
+        for (int i = 0; i < playerNum; i++) {
+            snprintf(buf, BUF_LEN, "%d: %s\n", i + 1, players[i].name);
+            write(thief->sock, buf, strlen(buf));
+        }
+        write(thief->sock, "番号を入力: ", strlen("番号を入力: "));
+        read(thief->sock, buf, BUF_LEN);
+        sscanf(buf, "%d", &victimNum);
+        victimNum--;
+
+        if (victimNum < 0 || victimNum >= playerNum) {
+            snprintf(buf, BUF_LEN, "そのプレイヤーは存在しません\n");
+            write(thief->sock, buf, strlen(buf));
+            continue;
+        }
+        break;
+    }
+
+    int choice = 0;
+    while (1) {
+        snprintf(buf, BUF_LEN, "%sさんの役職は%sです。\n役職を盗みますか？\n1: 盗む\n2: 盗まない\n", players[victimNum].name, strRole(players[victimNum].role));
+        write(thief->sock, buf, strlen(buf));
+        read(thief->sock, buf, BUF_LEN);
+        sscanf(buf, "%d", &choice);
+
+        switch (choice) {
+            case 1:
+                stealRole(thief, &players[victimNum]);
+                snprintf(buf, BUF_LEN, "%sさんの役職を盗みました\nあなたの役職は%sです。\n", players[victimNum].name, strRole(thief->role));
+                write(thief->sock, buf, strlen(buf));
+                break;
+            case 2:
+                snprintf(buf, BUF_LEN, "盗みませんでした。\nあなたは市民陣営です。\n");
+                write(thief->sock, buf, strlen(buf));
+                break;
+            default:
+                snprintf(buf, BUF_LEN, "1か2を入力してください\n");
+                write(thief->sock, buf, strlen(buf));
+                continue;
+        }
+        break;
+    }
+    return 0;
 }
 
 // 投票
