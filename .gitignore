@@ -1,6 +1,6 @@
 mylib/mylib.a
 mylib/voting.o
-mylib/takema.o
+mylib/role.o
 mylib/output
 obj
 client.exe

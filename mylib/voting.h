@@ -1,6 +1,6 @@
 #ifndef VOTING_H
 #define VOTING_H
-#include "./takema.h"
+#include "./role.h"
 
 char *chop_newline(char *str, int len);
 void displayPlayersName(int playerNum, Player *players);

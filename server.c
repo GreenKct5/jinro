@@ -10,7 +10,7 @@
 #include <time.h>
 #include <pthread.h>
 #include "./mylib/voting.h"
-#include "./mylib/takema.h"
+#include "./mylib/role.h"
 
 #define PORT (in_port_t) 50000
 #define BUF_LEN 512

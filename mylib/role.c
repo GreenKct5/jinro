@@ -9,7 +9,7 @@
 #include <arpa/inet.h>
 #include <sys/select.h>
 #include <time.h>
-#include "takema.h"
+#include "role.h"
 
 #define MAX_NAME_LENGTH 15
 #define BUF_LEN 256

@@ -5,7 +5,7 @@ CC = gcc
 CFLAGS = -Wall -Wextra -Werror
 
 # Source files
-SRCS = voting.c takema.c
+SRCS = voting.c role.c
 
 # Object files
 OBJS = $(SRCS:.c=.o)
