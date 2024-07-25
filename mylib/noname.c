@@ -31,7 +31,7 @@ void* timer(void* arg) {
         int remaining_seconds = remaining % 60; // 残り秒数を計算
 
         if (remaining < 0) {
-            snprintf(buffer, sizeof(buffer), "\n~~~~~~~~~~~~~~~~~~\n時間切れ\n終了\n~~~~~~~~~~~~~~~~~~\n");
+            snprintf(buffer, sizeof(buffer), "\n~~~~~~~~~~~~~~~~~~~~\n時間切れ\n話し合いを終了して下さい。\n~~~~~~~~~~~~~~~~~~~~\n");
             for (int i = 0; i < client_count; i++) {
                 send(socks[i], buffer, strlen(buffer), 0); // クライアントに表示
             }
