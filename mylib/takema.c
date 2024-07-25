@@ -68,7 +68,7 @@ int selectVictim(Player *thief, Player *players, int playerNum) {
     int victimNum = 0;
 
     while (1) {
-        snprintf(buf, BUF_LEN, "誰から役職を盗みますか？\n");
+        snprintf(buf, BUF_LEN, "誰から役職を盗みますか？\n番号を入力: ");
         write(thief->sock, buf, strlen(buf));
         for (int i = 0; i < playerNum; i++) {
             snprintf(buf, BUF_LEN, "%d: %s\n", i + 1, players[i].name);
