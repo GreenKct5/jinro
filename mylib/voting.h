@@ -7,7 +7,7 @@ void displayPlayersName(int playerNum, Player *players);
 
 void checkwolf(Player* player, Player* players, int playerNum);
 
-void divination(Player* seer, Player* players, int playerNum);
+void divination(Player* seer, Player* players, int playerNum,Role* trash);
 
 void *voting(int playerNum, Player *players);
 int VoteDisclosure(int *votes, int playerNum);

@@ -66,7 +66,7 @@ void checkwolf(Player* player, Player* players, int playerNum) {
     }
 }
 
-void divination(Player* seer, Player* players, int playerNum) {
+void divination(Player* seer, Player* players, int playerNum,Role* trash) {
     char buf[BUF_LEN];
     char option[64];
     int optionIndex = 0;
@@ -101,23 +101,28 @@ void divination(Player* seer, Player* players, int playerNum) {
     } else if (choice == optionIndex) {
         // 使われてない役職2つを表示
         write(seer->sock, "使われていない役職2つは:\n", strlen("使われていない役職2つは:\n"));
+        // trashの中身を表示
+        for (int i = 0; i < 2; i++) {
+            snprintf(buf, BUF_LEN, "%s\n", strRole(trash[i]));
+            write(seer->sock, buf, strlen(buf));
+        }
 
-        // 全ての役職とその数をカウント
-        Role allRoles[8] = {WEREWOLF, WEREWOLF, SEER, THIEF, VILLAGER, VILLAGER, VILLAGER, VILLAGER};
-        int roleCounts[4] = {0}; // 役職のカウント
+        // // 全ての役職とその数をカウント
+        // Role allRoles[8] = {WEREWOLF, WEREWOLF, SEER, THIEF, VILLAGER, VILLAGER, VILLAGER, VILLAGER};
+        // int roleCounts[4] = {0}; // 役職のカウント
         
-        // プレイヤーの役職をカウント
-        for (int i = 0; i < playerNum; i++) {
-            roleCounts[players[i].role]++;
-        }
+        // // プレイヤーの役職をカウント
+        // for (int i = 0; i < playerNum; i++) {
+        //     roleCounts[players[i].role]++;
+        // }
 
-        // 使われていない役職を表示
-        for (int i = 0; i < 8; i++) {
-            if (roleCounts[allRoles[i]] == 0) {
-                snprintf(buf, BUF_LEN, "%s\n", strRole(allRoles[i]));
-                write(seer->sock, buf, strlen(buf));
-            }
-        }
+        // // 使われていない役職を表示
+        // for (int i = 0; i < 8; i++) {
+        //     if (roleCounts[allRoles[i]] == 0) {
+        //         snprintf(buf, BUF_LEN, "%s\n", strRole(allRoles[i]));
+        //         write(seer->sock, buf, strlen(buf));
+        //     }
+        // }
     } else {
         // 無効な入力の場合の処理
         write(seer->sock, "無効な選択です\n", strlen("無効な選択です\n"));

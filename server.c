@@ -137,7 +137,7 @@ int main() {
         snprintf(buf, BUF_LEN, "\nあなたの役職は %s です\n", strRole(players[i].role));
         write(players[i].sock, buf, strlen(buf));
         if (players[i].role == WEREWOLF) checkwolf(&players[i], players, playerNum);
-        if (players[i].role == SEER) divination(&players[i], players, playerNum);
+        if (players[i].role == SEER) divination(&players[i], players, playerNum,trash);
     }
     for (int i = 0; i < playerNum; i++) {
         if (players[i].role == THIEF) selectVictim(&players[i], players, playerNum);
