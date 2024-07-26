@@ -95,8 +95,8 @@ int main() {
     write(1, "このゲームは4人プレイです\n", strlen("このゲームは4人プレイです\n"));
 
     // タイマーの分と秒を設定
-    int minutes = 2;
-    int seconds = 30;
+    int minutes = 1;
+    int seconds = 0;
 
     memset((char *)&me, 0, sizeof(me));
     me.sin_family = AF_INET;

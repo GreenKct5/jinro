@@ -77,7 +77,7 @@ void divination(Player* seer, Player* players, int playerNum) {
 
     for (int i = 0; i < playerNum; i++) {
         if (strcmp(players[i].name, seer->name) != 0) {
-            snprintf(option, sizeof(option), "%c. %s\n", 'a' + optionIndex, players[i].name);
+            snprintf(option, sizeof(option), "%c. %s\n", 'a' + optionIndex+1, players[i].name);
             write(seer->sock, option, strlen(option));
             optionIndex++;
         }
@@ -183,8 +183,6 @@ int selectVictim(Player *thief, Player *players, int playerNum) {
     }
     return 0;
 }
-
-// 投票
 void voting(int playerNum, Player *players) {
     char buf[BUF_LEN];
     int votes[playerNum];
@@ -216,8 +214,15 @@ void voting(int playerNum, Player *players) {
         read(sock, buf, BUF_LEN);
         chop_newline(buf, BUF_LEN);
 
-        if ((int)buf[0] >= (int)'1' && (int)buf[0] <= (int)'4') {
-            votes[buf[0] - 'a']++;
+        int vote = atoi(buf);
+        if (vote >= 1 && vote <= optionIndex) {
+            if (vote == optionIndex) {
+                // "この中に人狼はいない" の選択
+                // この場合、特別な処理が必要であればここに追加
+            } else {
+                // プレイヤーへの投票
+                votes[vote - 1]++;
+            }
         } else {
             write(sock, "無効な票です\n", strlen("無効な票です\n"));
         }
@@ -243,7 +248,6 @@ void voting(int playerNum, Player *players) {
     }
 }
 
-// 票の開示とどの票が一番多かったか集計する
 int VoteDisclosure(int *votes, int playerNum){
     int maxVotes = 0;
     int maxIndex = -1;
@@ -255,6 +259,7 @@ int VoteDisclosure(int *votes, int playerNum){
     }
     return maxIndex;
 }
+
 
 // 人狼の人数を数える
 int getWolfNum(Player * players, int playerNum){
