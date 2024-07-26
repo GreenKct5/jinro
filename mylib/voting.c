@@ -98,7 +98,7 @@ void divination(Player* seer, Player* players, int playerNum,Role* trash) {
         write(seer->sock, "占った結果:\n", strlen("占った結果:\n"));
         snprintf(buf, BUF_LEN, "%sさんの役職は%sです。\n", players[choice].name, strRole(players[choice].role));
         write(seer->sock, buf, strlen(buf));
-    } else if (choice == optionIndex) {
+    } else if (choice == optionIndex+1) {
         // 使われてない役職2つを表示
         write(seer->sock, "使われていない役職2つは:\n", strlen("使われていない役職2つは:\n"));
         // trashの中身を表示
@@ -197,7 +197,7 @@ void voting(int playerNum, Player *players) {
     for (int i = 0; i < playerNum; i++) {
         int sock = players[i].sock;
         char option[64];
-        int optionIndex = 1;
+        int optionIndex = 0;
 
         write(sock, "\n恐ろしい夜になりました．投票してください\n", strlen("\n恐ろしい夜になりました．投票してください\n"));
 
